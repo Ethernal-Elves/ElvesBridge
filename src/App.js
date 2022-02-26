@@ -6,14 +6,8 @@ import {
 } from "react-router-dom";
 import MainLayout from './templates/MainLayout';
 import Home from './views/home';
-import Mint from './views/mint';
-import Admin from './views/admin';
-import Profile from './views/profile';
-import Faq from './views/faq';
 import { getCurrentWalletConnected } from './utils/interact'
 import { useState, useEffect } from 'react';
-import PlayEth from './views/PlayEth';
-import PlayPolygon from './views/PlayPolygon';
 import Transfers from './views/Transfers';
 
 require('dotenv').config();
@@ -48,27 +42,8 @@ const [flip, setFlip] = useState(false)
               <Route exact path="/">
                 <Home />
               </Route>
-              <Route exact path="/admin">
-                {flip ? <Admin/> : <Home/>}
-              </Route>
-              <Route exact path="/mint">
-                <Mint />
-              </Route>
-              <Route exact path="/profile">
-                <Profile />
-              </Route>
-              <Route exact path="/faq">
-                <Faq />               
-              </Route>
-              {/*
-                 <Route exact path="/playeth">
-                <PlayEth />
-               </Route>
-               <Route exact path="/playpoly">
-                <PlayPolygon />
-               </Route>
-            
-              */}
+         
+   
              
                <Route exact path="/transfers">
                 <Transfers />

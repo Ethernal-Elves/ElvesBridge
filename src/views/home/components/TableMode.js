@@ -9,11 +9,10 @@ import {
 } from "../../../utils/interact"
 
 import Modal from "../../../components/Modal"
-import Mint from "../../mint";
 import Loader from "../../../components/Loader";
 import thevoid from "../../../assets/images/thevoid.png";
+import Admin from "./Admin";
 
-const allowedWallets = ["0xccfb66d52076a8295592642068c45d06fa6e36f6", "0xccb6d1e4acec2373077cb4a6151b1506f873a1a5"]
 
 
 const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisualMode, visualMode, reloadData, setReloadData, polyBalance}) => {
@@ -22,7 +21,7 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
     const { Moralis } = useMoralis();
     const [sortBy, setSortBy] = useState({ value: "cooldown", order: "desc" });
     const [renTransfer, setRenTransfer] = useState("")
-    const [allowed, setAllowed] = useState(false)
+    
     
     const [isButtonEnabled, setIsButtonEnabled] = useState({
         unstake: false,
@@ -55,11 +54,6 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
 
     }
 
-    useEffect(() => {
-        if(allowedWallets.includes(owner)) {
-            setAllowed(true)
-        }
-    }, [owner])
 
     
     
@@ -308,7 +302,7 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
             return(
                  <Modal show={mintModal}>
                      
-                        <Mint />
+                        
                     
                 </Modal>
             
@@ -372,14 +366,14 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
                     <div className="column">             
 
                             <div className="flex justify-center p-2">
-                                    
-                            {allowed && <button className="btn-whale"  onClick={()=> setTransfersModal(!transfersModal)}> Transfers </button>}
+                          <button className="btn-whale"  onClick={()=> setTransfersModal(!transfersModal)}> Transfers </button>
                             <button className="btn-whale" onClick={unStakeElf}> Unstake </button>
                             <button className="btn-whale" onClick={()=> setMintModal(!mintModal)}> Mint </button>
                            
                             <button disabled className="btn-whale" onClick={() => setVisualMode(!visualMode)}>Visual mode</button>
                             <button className="btn btn-green" onClick={() => setReloadData(!reloadData)}>Reload Data</button>
                             <button className="btn btn-blue" onClick={toggleChain}>Active: {chain}</button>
+                            <Admin />
                             </div>      
     
         <div className="collection-panel">

@@ -42,10 +42,10 @@ const MainLayout = (props) => {
                               </div>
                               </div>
                     */} 
-                    <NavLink className="nav-item" to="/profile">profile</NavLink>
+                   
                     <ConnectWallet />
                    
-                    <NavLink className="nav-item" to="/faq">faq</NavLink>
+                  
                     <NavLink className="nav-item" to="/transfers">transfers</NavLink>
                 </div>
               
