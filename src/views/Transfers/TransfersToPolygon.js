@@ -136,7 +136,8 @@ const TransfersToPolygon = () => {
 
                 let query = new Moralis.Query(Elves);
                 query.equalTo("from", address);
-                query.notEqualTo("status", "completed");                
+                query.notEqualTo("status", "completed");    
+                query.equalTo("confirmed", true);            
                 
                 let limit = 50
 
@@ -164,6 +165,7 @@ const TransfersToPolygon = () => {
         query = new Moralis.Query(ElvesRenTransferIn);
         query.equalTo("from", address);
         query.notEqualTo("status", "completed");
+        query.equalTo("confirmed", true);
         let renResults = []
         hasMore = true
         page = 1

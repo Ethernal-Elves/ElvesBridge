@@ -63,6 +63,9 @@ const TransfersToEth = () => {
         let signatureArry = []
         let authCodesArry = []
 
+        let updateElfStatusArray = []
+        let updateRenStatusArray = []
+
         let renTxs = []
 
         let renAmount 
@@ -77,10 +80,12 @@ const TransfersToEth = () => {
             if (clicked.includes((item.id))) {
                 
                 if(item.className ===  elvesPolyCheckIn){
+
                 tokenIdsArry.push(item.attributes.tokenId)
                 sentinelArry.push(item.attributes.sentinel)
                 signatureArry.push(item.attributes.signedTransaction.signature)
                 authCodesArry.push(item.attributes.authCode)
+                updateElfStatusArray.push(item)
 
                 }else if(item.className === elvesRenTransferIn){
 
@@ -89,10 +94,9 @@ const TransfersToEth = () => {
                     renSignature = item.attributes.signedTransaction.signature
 
                     renTxs.push({ renAmount, timestamp, renSignature})
+                    updateRenStatusArray.push(item)
                 }   
-
-                item.set("status", "initiated")
-                item.save()
+                
             }
 
 
@@ -102,8 +106,17 @@ const TransfersToEth = () => {
   
         const params1 =  {ids:tokenIdsArry , sentinel:sentinelArry, signature:signatureArry, authCode:authCodesArry}
         let {success, status, txHash} = await checkOut(params1)
-   
-        success && resetVariables()            
+        
+        if(success){
+
+            updateElfStatusArray.map((item, index) => {
+                item.set("status", "initiated")
+                item.save()
+            })
+
+            resetVariables()  
+
+        }                 
  
         setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
       }
@@ -124,7 +137,18 @@ const TransfersToEth = () => {
                 const params2 =  {renAmount:tx.renAmount , signature:tx.renSignature, timestamp:tx.timestamp}
 
                 console.log(params2)
-                let {success, status, txHash} = await checkOutRen(params2)       
+                let {success, status, txHash} = await checkOutRen(params2)     
+                
+                if(success){
+
+                    updateRenStatusArray.map((item, index) => {
+                        item.set("status", "initiated")
+                        item.save()
+                    })
+        
+                    resetVariables()  
+        
+                }       
             
         
             setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
@@ -189,7 +213,8 @@ const TransfersToEth = () => {
 
                 let query = new Moralis.Query(Elves);
                 query.equalTo("from", address);
-                query.notEqualTo("status", "confirmed");
+                query.equalTo("confirmed", true);
+                query.notEqualTo("status", "completed");
                 
                 let limit = 50
 
@@ -216,6 +241,8 @@ const TransfersToEth = () => {
         
         query = new Moralis.Query(ElvesRenTransferIn);
         query.equalTo("from", address);
+        query.equalTo("confirmed", true);
+        query.notEqualTo("status", "completed");
        
         let renResults = []
         hasMore = true
@@ -238,13 +265,8 @@ const TransfersToEth = () => {
        //check if signature has been used.
       
        setStatus("checking pending ren transfers")        
-      
-       console.log(renResults)
-        if(renResults.length > 0){            
-            let sigcheckresponse = await checkRenTransfersIn(renResults)
-            results = results.concat(sigcheckresponse)
-        }
-       
+     
+       results = results.concat(renResults)
 
         setNftData(results) 
         setStatus("done")                  
