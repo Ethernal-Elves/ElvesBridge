@@ -7,7 +7,7 @@ import {elvesAbi, getCampaign, elvesContract, etherscan,
     checkIn, checkOut, checkOutRen, usedRenSignatures,
     sendCampaign, sendPassive, returnPassive, unStake, merchant, forging,
     heal, lookupMultipleElves, getCurrentWalletConnected, checkRenTransfersIn} from "../../utils/interact"
-import TransfersToEth from "./TransfersToEth"
+import SentinelTransfers from "./SentinelTransfers"
 import TransfersToPolygon from "./TransfersToPolygon"
 
 
@@ -34,7 +34,7 @@ const Transfers = () => {
                     <h2>Pending Transfers</h2>
                     
                     </div>
-            <TransfersToEth />
+            <SentinelTransfers />
             <br/>
             <br/>
             <br/>

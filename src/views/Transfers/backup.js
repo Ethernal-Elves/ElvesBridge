@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from "react"
 import Loader from "../../components/Loader"
-import { useMoralis, useWeb3ExecuteFunction } from "react-moralis"
+import { useMoralis, useMoralisQuery } from "react-moralis"
 import {checkIn, checkOut, checkOutRen, usedRenSignatures,
     sendCampaign, sendPassive, returnPassive, unStake, merchant, forging,
     heal, lookupMultipleElves, getCurrentWalletConnected, checkRenTransfersIn} from "../../utils/interact"
+
 
 
 const TransfersToEth = () => {
@@ -11,26 +12,16 @@ const TransfersToEth = () => {
     const { Moralis } = useMoralis();
     const [status, setStatus] = useState("")
 
-
-    
-    
-
     const [clicked, setClicked] = useState([]);
 
     const [nftData, setNftData] = useState([])
-    const [renTransfers, setRenTransfers] = useState([])
-    const [activeNfts, setActiveNfts] = useState(true)
-    const [txreceipt, setTxReceipt] = useState()
     const [alert, setAlert] = useState({show: false, value: null})
-    const [campaignModal, setCampaignModal] = useState(false)
     const [sigButton, setSigButton] = useState(false)
    
     const resetVariables = async () => {
+        
         setClicked([])
         setNftData([])
-        setTxReceipt([])
-        setCampaignModal(false)
-        setActiveNfts(!activeNfts)
 
     }
     
@@ -48,10 +39,23 @@ const TransfersToEth = () => {
         }else{
             setSigButton(false)
         }
-
        
     }    
 
+    const [limit, setLimit] = useState(3);
+    const { data, error, isLoading } = useMoralisQuery(
+      "ElvesPolyCheckIn",
+      query =>
+        query
+          .equalTo("from", "0xccb6d1e4acec2373077cb4a6151b1506f873a1a5")
+          .equalTo("confirmed", true)
+          .notEqualTo("status", "completed")
+          .limit(limit),
+      [limit],
+     
+    );
+
+   console.log(data)
 
     const checkOutElf = async () => {
 
@@ -156,10 +160,8 @@ const TransfersToEth = () => {
             })
         
         }
-        //success && resetVariables()  
+        resetVariables()  
         
-        setClicked([])
-        setNftData([])
                       
         }
 

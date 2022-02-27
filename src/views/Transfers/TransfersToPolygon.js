@@ -18,15 +18,13 @@ const TransfersToPolygon = () => {
 
 
     const [nftData, setNftData] = useState([])
-    const [activeNfts, setActiveNfts] = useState(true)
     const [txreceipt, setTxReceipt] = useState()
     const [alert, setAlert] = useState({show: false, value: null})
 
    
     const resetVariables = async () => {
         setClicked([])
-        setNftData([])
-        setActiveNfts(!activeNfts)
+        setNftData([]) 
 
     }
 
@@ -48,6 +46,45 @@ const TransfersToPolygon = () => {
        
     }    
 
+    const confirmElfTransfers = async () => {
+
+        
+       
+        let {address} = await getCurrentWalletConnected()
+
+        let elfTransfers = []
+       
+
+        nftData.map((item, index) => {
+
+            if (clicked.includes((item.id))) {
+
+                    elfTransfers.push(item.id)
+                             
+                }
+                
+            })
+
+      
+        let params =  {objectIds:elfTransfers, owner:address, asset:"elves"}
+        
+        let response 
+        console.log(params)
+        try{
+          setLoading(true)
+          setStatus("1. Sending gasless tx to confirm elf transfers. Don't close window or refresh.")
+          response = await Moralis.Cloud.run("confirmPendingPolygon", params);
+          setTxReceipt(response)
+          console.log(response)
+        }catch(error){
+            console.log(error)
+        }
+
+        setLoading(false)
+
+
+ }
+
 
     const confirmTransfers = async () => {
 
@@ -65,21 +102,14 @@ const TransfersToPolygon = () => {
 
             if (clicked.includes((item.id))) {
 
-                if(item.className ===  "ElvesRenTransferOut"){
+                if(item.className ===  "SentinelTransfers"){
 
                     renTransfers.push(item.id)
-                    if(!item.attributes.status){
-                    item.set("status", "pending")
-                    item.save()
-                    }
-
-                }else if(item.className ===  "ElvesEthCheckIn"){
+               
+                }else if(item.className === "SentinelTransfers"){
                    
                     elfTransfers.push(item.id)
-                    if(!item.attributes.status){
-                        item.set("status", "pending")
-                        item.save()
-                    }                  
+                             
                 }
                 
             }
@@ -130,14 +160,15 @@ const TransfersToPolygon = () => {
                 const {address} = await getCurrentWalletConnected();
                 setStatus("connected to address: " + address)
 
-               const Elves = Moralis.Object.extend("ElvesEthCheckIn");
+               const Elves = Moralis.Object.extend("SentinelTransfers");
                const ElvesRenTransferIn = Moralis.Object.extend("ElvesRenTransferOut");
                let results = []
 
                 let query = new Moralis.Query(Elves);
                 query.equalTo("from", address);
+                query.equalTo("transferTo", "polygon");
                 query.notEqualTo("status", "completed");    
-                query.equalTo("confirmed", true);            
+                     
                 
                 let limit = 50
 
@@ -196,7 +227,7 @@ const TransfersToPolygon = () => {
         }
         
         getData()
-          },[txreceipt]);
+          },[]);
 
 
         const showAlert = ({title, content}) => {
@@ -231,7 +262,7 @@ const TransfersToPolygon = () => {
                         <button
                             /*disabled={!isButtonEnabled.unstake}*/
                             className="btn-whale"
-                            onClick={confirmTransfers}
+                            onClick={confirmElfTransfers}
                         >
                             Confirm Transfers
                         </button>
@@ -269,7 +300,7 @@ const TransfersToPolygon = () => {
             {nftData.map((line, index) => {
 
 
-                const date = new Date(line.attributes.timestamp * 1000)
+                const date = new Date(line.attributes.timestampCreated * 1000)
                 const dateString = date.toString()
 
                 let rowSelected = clicked.includes((line.id)) ? "rowSelected" : ""
@@ -290,6 +321,7 @@ const TransfersToPolygon = () => {
                     <td>{line.attributes.tokenId}</td>
                     <td>{line.attributes.renAmount && line.attributes.renAmount/1000000000000000000}</td>
                     <td>{line.attributes.status}</td>
+                    <td>{line.attributes.defenderTxHash}</td>
                 </tr>)
             }
              
