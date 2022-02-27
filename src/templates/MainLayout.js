@@ -25,24 +25,11 @@ const MainLayout = (props) => {
                 <div className="header-body"> 
                 <Withdraw />
                 <ConnectWallet />
-               <NavLink className="nav-item" to="https://transfers.ethernalElves.com">transfers</NavLink>
                 </div>
               
-               {/**<ToggleChain /> 
-                *  <div onClick={onClickHome} className="nav-item" to="/">play</div>
-                *  <NavLink className="nav-item" to="/mint">mint</NavLink>
-                * 
-               */} 
-
-           
-               
                
             </div>
-           
-            <div className="mobile-header">
-                        <ConnectWallet />
-                       
-             </div>    
+  
             
             <div className="app-body">
            

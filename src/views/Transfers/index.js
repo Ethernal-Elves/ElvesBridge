@@ -16,7 +16,7 @@ const Transfers = () => {
     const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
     
-    const [transferChain, setTransferchain] = useState("eth")
+    const [transferChain, setTransferchain] = useState("polygon")
     const [wallet, setWallet] = useState("")
     const [toggleView, setToggleView] = useState(true)
 
@@ -28,7 +28,7 @@ const Transfers = () => {
 
     const toggleTabs = () => {
         setToggleView(!toggleView)  
-        if(toggleView){
+        if(!toggleView){
             setTransferchain("polygon")
         }else{
             setTransferchain("eth")

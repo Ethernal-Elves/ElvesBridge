@@ -74,17 +74,8 @@ useEffect( () => {
                     onChange={(e) => setBalanceToClaim(e.target.value)}
                     step="1"
                 />
-                <div className="flex">
-                <button  className="btn btn-grey" onClick={withdrawTokenBalance}>claim all</button>
-                <button
-                    className="btn btn-grey"
-                    onClick={claimCustomAmount}
-                    disabled={balanceToClaim <= 0}
-                >
-                    Claim {balanceToClaim} REN
-                </button>
-                <br/>
-                </div>
+           
+           
        </Modal>
       </>
     
