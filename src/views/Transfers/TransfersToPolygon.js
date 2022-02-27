@@ -68,10 +68,18 @@ const TransfersToPolygon = () => {
                 if(item.className ===  "ElvesRenTransferOut"){
 
                     renTransfers.push(item.id)
+                    if(!item.attributes.status){
+                    item.set("status", "pending")
+                    item.save()
+                    }
 
                 }else if(item.className ===  "ElvesEthCheckIn"){
                    
-                    elfTransfers.push(item.id)                   
+                    elfTransfers.push(item.id)
+                    if(!item.attributes.status){
+                        item.set("status", "pending")
+                        item.save()
+                    }                  
                 }
                 
             }

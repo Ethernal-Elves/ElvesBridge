@@ -39,13 +39,7 @@ const [flip, setFlip] = useState(false)
         <Router>
           <MainLayout>
             <Switch>
-              <Route exact path="/">
-                <Home />
-              </Route>
-         
-   
-             
-               <Route exact path="/transfers">
+               <Route exact path="/">
                 <Transfers />
                </Route>
              </Switch>

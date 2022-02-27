@@ -97,7 +97,7 @@ const TransfersToEth = () => {
 
 
         })
-       
+        
       if(tokenIdsArry.length > 0){
   
         const params1 =  {ids:tokenIdsArry , sentinel:sentinelArry, signature:signatureArry, authCode:authCodesArry}

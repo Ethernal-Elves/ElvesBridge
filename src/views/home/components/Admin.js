@@ -54,20 +54,22 @@ const refreshMetaData = async () => {
     const res = await query.first();
     if(!res){
      
-      if(elf.action === 8){
-        chain = "polygon"
-      }
+     
       const elvesObject = new Elves();
       elvesObject.set("owner_of", elf.owner)
       elvesObject.set("token_id", elf.id)
       elvesObject.save() 
       console.log("object created")
       }else{
+
+        if(parseInt(elf.action) === 8){
+          chain = "polygon"
+        }
         res.set("owner_of", elf.owner);
         res.set("chain", chain);
 
         res.save()
-        console.log("object saved")
+        console.log("object saved", res, elf)
       }
 
     })

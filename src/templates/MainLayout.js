@@ -24,29 +24,8 @@ const MainLayout = (props) => {
                 <img className="app-logo" src={logoImg} alt="logo" />
                 <div className="header-body"> 
                 <Withdraw />
-                    
-                    
-                    <div onClick={onClickHome} className="nav-item" to="/">play</div>
-                    {/*}<div className="nav-item menu">
-                        <span>Play</span>
-                        <div className="menu__items">
-                            <NavLink to="/">
-                                Visual Mode (ETH)
-                            </NavLink>
-                            <NavLink to="/playeth">
-                                Whale Mode (ETH)
-                            </NavLink>
-                            <NavLink to="/playpoly">
-                             Whale Mode (Polygon)
-                            </NavLink>
-                              </div>
-                              </div>
-                    */} 
-                   
-                    <ConnectWallet />
-                   
-                  
-                    <NavLink className="nav-item" to="/transfers">transfers</NavLink>
+                <ConnectWallet />
+               <NavLink className="nav-item" to="https://transfers.ethernalElves.com">transfers</NavLink>
                 </div>
               
                {/**<ToggleChain /> 
