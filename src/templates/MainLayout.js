@@ -24,6 +24,7 @@ const MainLayout = (props) => {
                 <img className="app-logo" src={logoImg} alt="logo" />
                 <div className="header-body"> 
                 <Withdraw />
+                <NavLink className="nav-item" to={{ pathname: "https://app.ethernalElves.com"}} target="_blank">play</NavLink>
                 <ConnectWallet />
                 </div>
               

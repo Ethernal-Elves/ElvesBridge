@@ -10,6 +10,7 @@ import {elvesAbi, getCampaign, elvesContract, etherscan,
 import SentinelTransfers from "./SentinelTransfers"
 import TransfersToPolygon from "./TransfersToPolygon"
 import "./style.css"
+import RenTransfers from "./RenTransfers";
 
 
 const Transfers = () => {
@@ -66,9 +67,10 @@ const Transfers = () => {
                             </div>   
 
                    
-
+            {wallet && <>
                <SentinelTransfers address={wallet} transferTo={transferChain} />
-            
+             
+               </>}
             <br/>
             <br/>
             <br/>

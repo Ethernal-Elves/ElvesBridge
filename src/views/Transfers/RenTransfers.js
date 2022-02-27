@@ -7,8 +7,8 @@ import {checkIn, checkOut, checkOutRen, usedRenSignatures,
 
 
 
-const SentinelTransfers = ({address, transferTo}) => {
-    const [loading, setLoading] = useState(false)
+const RenTransfers = ({address, transferTo}) => {
+    const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
     const [status, setStatus] = useState("")
    
@@ -51,7 +51,7 @@ const SentinelTransfers = ({address, transferTo}) => {
     
 
     const { data, error, isLoading, fetch } = useMoralisQuery(
-      "SentinelTransfers",
+      "RenTransfers",
       query =>
         query
           .equalTo("from", address)
@@ -63,79 +63,83 @@ const SentinelTransfers = ({address, transferTo}) => {
     );
 
 
-    const checkOutElf = async () => {
-        setLoading(true)
+    const checkOutRen = async () => {
 
-        let tokenIdsArry = []
-        let sentinelArry = []
-        let signatureArry = []
-        let authCodesArry = []
-        let objectIds = []
+        let renTransfers = []
+        let updateRenStatusArray = []
+        
+        data.map((item, index) => {
 
-        let updateElfStatusArray = []
-
-        data.map((item) => {
-            
+        
             if (clicked.includes((item.id))) {
 
-                tokenIdsArry.push(item.attributes.tokenId)
-                sentinelArry.push(item.attributes.sentinel)
-                signatureArry.push(item.attributes.signature)
-                authCodesArry.push(item.attributes.authCode)
-                objectIds.push(item.id)
-                updateElfStatusArray.push(item)
+                renTransfers.push(item.attributes.renAmount)
                 
             }
-
 
         })
 
-                
-      if(tokenIdsArry.length > 0){
-
-        if(transferTo === "polygon"){
-
-            let params =  {objectIds:objectIds, owner:address, asset:"elves"}
-            console.log(params)
-            try{
-              setLoading(true)
-              setStatus("1. Sending gasless tx to confirm elf transfers. Don't close window or refresh.")
-              const response = await Moralis.Cloud.run("confirmPendingPolygon", params);
-              console.log(response)
-            }catch(error){
-                console.log(error)
-            }
-      
-            
-        }
         
-        else{
-
-                    let params =  {ids:tokenIdsArry , sentinel:sentinelArry, signature:signatureArry, authCode:authCodesArry}
-                    let {success, status, txHash} = await checkOut(params)
-                    
-                    if(success){
-
-                        updateElfStatusArray.map((item, index) => {
-                            item.set("status", "initiated")
-                            item.save()
-                        })
-
-                    
-
-                    }
-        }
- 
-        setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
-      }
     
+    if(renTransfers.length > 0){
+
+        if(transferTo === "polygon"){          
+                 
+           
+                   
+          let params =  {objectIds:renTransfers, owner:address, asset:"ren"}
+                    
+            try{
+                const response = await Moralis.Cloud.run("confirmPendingPolygon", params);
+                console.log(response, params)
+                    }catch(error){
+                        console.log(error)
+                    }
+                        
+            }else
+            
+            {
+
+                   renTransfers.map(async (tx)=>{
+            
+                            let sigUsed = await usedRenSignatures(tx.renSignature)
+                            
+                            if(parseInt(sigUsed) === 1){
+                                console.log("is true. very naice.")
+                                setAlert({show: true, value: {title: "Signature used", content: ("This transaction signature has already been used")}})
+                                return
+                            }
+            
+                        
+                            const params2 =  {renAmount:tx.renAmount , signature:tx.renSignature, timestamp:tx.timestamp}
+            
+                            console.log(params2)
+                            let {success, status, txHash} = await checkOutRen(params2)     
+                            
+                            if(success){
+            
+                                updateRenStatusArray.map((item, index) => {
+                                    item.set("status", "initiated")
+                                    item.save()
+                                })
+                    
+                    }       
+                        
+                  
+            
+                        })
+                    
+                    }
+
+                    resetVariables()  
+                    setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
+
+                }                
      
-        resetVariables()  
-       setLoading(false)
                       
         }
 
-     
+    
 
 
         const showAlert = ({title, content}) => {
@@ -151,7 +155,7 @@ const SentinelTransfers = ({address, transferTo}) => {
 
 
 
-    return !loading ? (
+    return (
         
         <>
 
@@ -159,7 +163,7 @@ const SentinelTransfers = ({address, transferTo}) => {
                             <button
                             /*disabled={!isButtonEnabled.unstake}*/
                             className="btn-whale"
-                            onClick={checkOutElf}
+                            onClick={checkOutRen}
                         >
                             Confirm Transfers to {transferTo}
                         </button>   
@@ -181,13 +185,7 @@ const SentinelTransfers = ({address, transferTo}) => {
         <tr>
         <th>Id</th>
         <th>Transfer Initiated On</th>
-        <th>
-            <div className="flex">
-                <span>Sentinel State</span>
-                
-            </div>
-        </th>
-        <th>Token Id</th>
+        <th>Ren Amount</th>
         <th>Status</th>
         <th>Transfer To</th>
        
@@ -198,7 +196,7 @@ const SentinelTransfers = ({address, transferTo}) => {
 
             {!isLoading && data.map((line, index) => {
 
-                const date = new Date(line.attributes.timestampCreated * 1000)
+                const date = new Date(line.attributes.timestamp * 1000)
                 const dateString = date.toString()
 
                 let rowSelected = clicked.includes((line.id)) ? "rowSelected" : ""
@@ -211,12 +209,7 @@ const SentinelTransfers = ({address, transferTo}) => {
                     <td>
                         {dateString}
                     </td>
-                    <td>
-                     {line.attributes.sentinel && String(line.attributes.sentinel).substring(0, 10) +
-                    "..." +
-                    String(line.attributes.sentinel).substring(68)}
-                    </td>
-                    <td>{line.attributes.tokenId}</td>                   
+                    <td>{line.attributes.renAmount/1000000000000000000}</td>                   
                     <td>{line.attributes.status}</td>
                     <td>{line.attributes.transferTo}</td>
                 </tr>)
@@ -242,7 +235,7 @@ const SentinelTransfers = ({address, transferTo}) => {
         </>
         
      
-    ) : <Loader text={"Sending tx"} />
+    ) 
 }
 
-export default SentinelTransfers
+export default RenTransfers
