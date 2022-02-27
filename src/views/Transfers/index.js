@@ -14,35 +14,69 @@ import TransfersToPolygon from "./TransfersToPolygon"
 const Transfers = () => {
     const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
-    const [status, setStatus] = useState("")
-
-
- 
     
+    const [transferChain, setTransferchain] = useState("eth")
+    const [wallet, setWallet] = useState("")
+    const [toggleView, setToggleView] = useState(true)
+
+
+    useEffect(async () => {
+        const {address} = await getCurrentWalletConnected()
+        setWallet(address)
+    }, [])
+
+    const toggleTabs = () => {
+        setToggleView(!toggleView)  
+        if(toggleView){
+            setTransferchain("polygon")
+        }else{
+            setTransferchain("eth")
+        }
+       
+
+    }
+
+    
+
+
 
 
     return (
         
-        <>
+        <div className="dark-1000 h-full d-flex flex-column profile">           
 
         
-            <div className="dark-1000 h-full d-flex flex-column profile">           
-            <div className="table-whale">  
+<div className="d-flex">      
+        <div className="column">     
 
-                    <div className="flex">
-                                                    
-                    <h2>Pending Transfers</h2>
-                    
-                    </div>
-            <SentinelTransfers />
-            <br/>
-            <br/>
-            <br/>
-            <TransfersToPolygon/>
-            </div>
-            </div>
+        
+                    <div className="flex justify-center p-2">
+                            <button
+                            /*disabled={!isButtonEnabled.unstake}*/
+                            className="btn btn-blue"
+                            onClick={toggleTabs}
+                        >
+                            Toggle Chain
+                        </button>   
 
-        </>
+                      
+
+                            
+                            </div>   
+
+                   
+
+               <SentinelTransfers address={wallet} transferTo={transferChain} />
+            
+            <br/>
+            <br/>
+            <br/>
+           
+         
+</div>
+
+</div>
+        </div>
         
      
     ) 

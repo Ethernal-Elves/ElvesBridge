@@ -7,28 +7,24 @@ import {checkIn, checkOut, checkOutRen, usedRenSignatures,
 
 
 
-const SentinelTransfers = () => {
+const SentinelTransfers = ({address, transferTo}) => {
     const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
     const [status, setStatus] = useState("")
-
-    const [clicked, setClicked] = useState([]);
-
+   
     const [nftData, setNftData] = useState([])
     const [alert, setAlert] = useState({show: false, value: null})
-    const [sigButton, setSigButton] = useState(false)
+
    
-    const resetVariables = async () => {
-        
-        setClicked([])
-        setNftData([])
+    const resetVariables = async () => {        
+
         fetch()
 
     }
-    
-   
-    const handleClick = async (id) => {
 
+    const [clicked, setClicked] = useState([]);
+
+    const toggle = (id) => {
         if (clicked.includes(id)) {
             setClicked(clicked.filter(item => item !== id))
         } else {
@@ -36,33 +32,36 @@ const SentinelTransfers = () => {
         }
 
         if(clicked.length === 1) {
-            setSigButton(true)
+            
         }else{
-            setSigButton(false)
+            
         }
-       
-    }    
+    }
 
-               /* query.equalTo("from", address);
-                query.equalTo("transferTo", "polygon");
-                query.notEqualTo("status", "completed");  
-*/
-const address = "0xccb6d1e4acec2373077cb4a6151b1506f873a1a5"
-const transferTo = "polygon"
+
+    const handleClick = async (nft) => {
+        
+        if(nft.attributes.status === "completed" || nft.attributes.status === "initiated"){
+        }else{
+            toggle(nft.id)
+        }
+        
+        console.log(clicked)
+    }
+    
 
     const { data, error, isLoading, fetch } = useMoralisQuery(
       "SentinelTransfers",
       query =>
         query
           .equalTo("from", address)
-         // .equalTo("transferTo", "eth")
-         // .notEqualTo("status", "completed")
+          .equalTo("transferTo", transferTo)
+          .notEqualTo("status", "completed")
           .limit(10),
-      [address],
+      [address, transferTo],
      
     );
 
-   console.log(data)
 
     const checkOutElf = async () => {
 
@@ -70,10 +69,11 @@ const transferTo = "polygon"
         let sentinelArry = []
         let signatureArry = []
         let authCodesArry = []
+        let objectIds = []
 
         let updateElfStatusArray = []
 
-        data.map((item, index) => {
+        data.map((item) => {
             
             if (clicked.includes((item.id))) {
 
@@ -81,48 +81,55 @@ const transferTo = "polygon"
                 sentinelArry.push(item.attributes.sentinel)
                 signatureArry.push(item.attributes.signature)
                 authCodesArry.push(item.attributes.authCode)
+                objectIds.push(item.id)
                 updateElfStatusArray.push(item)
                 
             }
 
 
         })
-        
+
+                
       if(tokenIdsArry.length > 0){
-  
-        let params =  {ids:tokenIdsArry , sentinel:sentinelArry, signature:signatureArry, authCode:authCodesArry}
-        let {success, status, txHash} = await checkOut(params)
+
+        if(transferTo === "polygon"){
+
+            let params =  {objectIds:objectIds, owner:address, asset:"elves"}
+            console.log(params)
+            try{
+              setLoading(true)
+              setStatus("1. Sending gasless tx to confirm elf transfers. Don't close window or refresh.")
+              const response = await Moralis.Cloud.run("confirmPendingPolygon", params);
+              console.log(response)
+            }catch(error){
+                console.log(error)
+            }
+      
+            
+        }
         
-        if(success){
+        else{
 
-            updateElfStatusArray.map((item, index) => {
-                item.set("status", "initiated")
-                item.save()
-            })
+                    let params =  {ids:tokenIdsArry , sentinel:sentinelArry, signature:signatureArry, authCode:authCodesArry}
+                    let {success, status, txHash} = await checkOut(params)
+                    
+                    if(success){
 
-            resetVariables()  
+                        updateElfStatusArray.map((item, index) => {
+                            item.set("status", "initiated")
+                            item.save()
+                        })
 
-        }                 
+                    
+
+                    }
+        }
  
         setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
       }
-
-      let params =  {objectIds:tokenIdsArry, owner:address, asset:"elves"}
-        
-      let response 
-      console.log(params)
-      try{
-        setLoading(true)
-        setStatus("1. Sending gasless tx to confirm elf transfers. Don't close window or refresh.")
-        response = await Moralis.Cloud.run("confirmPendingPolygon", params);
-        console.log(response)
-      }catch(error){
-          console.log(error)
-      }
-
+    
      
         resetVariables()  
-        
                       
         }
 
@@ -146,20 +153,21 @@ const transferTo = "polygon"
         
         <>
 
-
-<div className="d-flex">      
-                    <div className="column">             
-
-                            <div className="flex justify-center p-2">
+<div className="flex justify-center p-2">
                             <button
                             /*disabled={!isButtonEnabled.unstake}*/
                             className="btn-whale"
                             onClick={checkOutElf}
                         >
-                            Confirm Transfers
+                            Confirm Transfers to {transferTo}
                         </button>   
+
+                        <button className="btn-whale" onClick={() => fetch}>Speed up transfer</button>
+
                             
-                            </div>      
+                            </div>    
+                      
+   
     
         <div className="collection-panel">
              <div className="collection-selection" >
@@ -193,8 +201,8 @@ const transferTo = "polygon"
 
                 let rowSelected = clicked.includes((line.id)) ? "rowSelected" : ""
 
-          
-                return( <tr key={index} className={`${rowSelected} row`} onClick={()=> handleClick((line.id))}  > 
+                
+                return( <tr key={index} className={`${rowSelected} row`} onClick={()=> handleClick((line))}  > 
                    <td>
                      {line.id}
                     </td>
@@ -216,10 +224,6 @@ const transferTo = "polygon"
                 </table>
                 </div>
                 </div>
-
-     
-</div>
-</div>
 
      
 </div>
