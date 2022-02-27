@@ -9,6 +9,7 @@ import {elvesAbi, getCampaign, elvesContract, etherscan,
     heal, lookupMultipleElves, getCurrentWalletConnected, checkRenTransfersIn} from "../../utils/interact"
 import SentinelTransfers from "./SentinelTransfers"
 import TransfersToPolygon from "./TransfersToPolygon"
+import "./style.css"
 
 
 const Transfers = () => {
