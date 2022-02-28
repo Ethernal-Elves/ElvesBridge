@@ -61,20 +61,11 @@ useEffect( () => {
        <h1>REN Balances</h1>
  
        
-                <p>REN credits: {balance} {balanceToClaim > 0 && `- ${balanceToClaim}`}</p>
+                <p>REN credits in Eth: {balance} {balanceToClaim > 0 && `- ${balanceToClaim}`}</p>
+                <p>REN credits in polygon: {polyBalance}</p>
                 <p>REN in wallet: {miren} </p>
-                <p>REN in polygon: {polyBalance}</p>
 
 
-                <input
-                    type="range"
-                    min="0"
-                    max={balance}
-                    value={balanceToClaim}
-                    onChange={(e) => setBalanceToClaim(e.target.value)}
-                    step="1"
-                />
-           
            
        </Modal>
       </>

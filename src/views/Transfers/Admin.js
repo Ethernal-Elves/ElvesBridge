@@ -13,35 +13,20 @@ import "./style.css"
 import RenTransfers from "./RenTransfers";
 
 
-const Transfers = () => {
+const Admin = () => {
     const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
-    
+    const [walletSwtich, setWalletSwtich] = useState()
     const [transferChain, setTransferchain] = useState("polygon")
-    const [wallet, setWallet] = useState("")
-    const [walletSwtich, setWalletSwtich] = useState(wallet)
-    const [toggleView, setToggleView] = useState(true)
-    const [admin, setAdmin] = useState("")
+    const [wallet, setWallet] = useState("0xccb6d1e4acec2373077cb4a6151b1506f873a1a5")
+    const [notStatus, setNotStatus] = useState("completed")
 
     
 
+ 
 
-    useEffect(async () => {
-        const {address} = await getCurrentWalletConnected()
-        setWallet(address)
-        
-        
-    }, [])
-
-    const toggleTabs = () => {
-        setToggleView(!toggleView)  
-        if(!toggleView){
-            setTransferchain("polygon")
-        }else{
-            setTransferchain("eth")
-        }
-       
-
+    const handleWalletChange = (e) => {
+        setWallet(e.target.value)
     }
 
     
@@ -58,23 +43,23 @@ const Transfers = () => {
         <div className="column">     
   
                     <div className="flex justify-center p-2">
-                            <button
-                            /*disabled={!isButtonEnabled.unstake}*/
-                            className="btn btn-blue"
-                            onClick={toggleTabs}
-                        >
-                            Toggle Chain
-                        </button>  
-
+                     
                       
-      
+                        <div>
+                            <label>address</label>
+                            <input type="text" value={wallet} onChange={(e)=>{setWallet(e.target.value)}}/>
+                            <label>transfer to</label>
+                            <input type="text" value={transferChain} onChange={(e)=>{setTransferchain(e.target.value)}}/>
+                            <label>not status</label>
+                            <input type="text" value={notStatus} onChange={(e)=>{setNotStatus(e.target.value)}}/>
+                        </div>
                               
                             
       </div>   
 
                    
             {wallet && <>
-               <SentinelTransfers notStatus={"completed"} address={wallet} transferTo={transferChain} limit={10} />
+               <SentinelTransfers notStatus={notStatus} address={wallet} transferTo={transferChain} limit={20} />
              
                </>}
             <br/>
@@ -91,4 +76,4 @@ const Transfers = () => {
     ) 
 }
 
-export default Transfers
+export default Admin

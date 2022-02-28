@@ -7,18 +7,21 @@ import {checkIn, checkOut, checkOutRen, usedRenSignatures,
 
 
 
-const SentinelTransfers = ({address, transferTo}) => {
+const SentinelTransfers = ({address, transferTo, notStatus, limit}) => {
     const [loading, setLoading] = useState(false)
+    const [loadingText, setLoadingText] = useState("")
     const { Moralis } = useMoralis();
     const [status, setStatus] = useState("")
    
     const [nftData, setNftData] = useState([])
+    const [transfersData, setTransfersData] = useState([])
     const [alert, setAlert] = useState({show: false, value: null})
 
    
     const resetVariables = async () => {        
 
-        fetch()
+        let hi = "hi"
+   
 
     }
 
@@ -50,22 +53,69 @@ const SentinelTransfers = ({address, transferTo}) => {
     }
     
 
-    const { data, error, isLoading, fetch } = useMoralisQuery(
+    /*const { data, error, isLoading, fetch } = useMoralisQuery(
       "SentinelTransfers",
       query =>
         query
           .equalTo("from", address)
           .equalTo("transferTo", transferTo)
-          .notEqualTo("status", "completed")
-          .limit(10),
-      [address, transferTo],
+          .notEqualTo("status", notStatus)
+          .limit(limit),
+      [address, transferTo, notStatus, limit],
      
-    );
+    );*/
+
+   const getElvesfromMoralis = async (address) => {
+
+        setLoading(true)
+        setLoadingText("Getting elves from Moralis")
+        setClicked([])
+        let array = []
+        let results 
+
+        await Moralis.enableWeb3()
+        
+        const Elves = Moralis.Object.extend("SentinelTransfers");
+        
+        let query = new Moralis.Query(Elves);  
+
+        query
+            .equalTo("from", address)
+            .equalTo("transferTo", transferTo)
+            .notEqualTo("status", notStatus)
+            .limit(limit)
+
+        results = await query.find()
+
+        console.log(results)
+          
+        results.map((elf) => {
+            
+            array.push(elf.attributes.tokenId)
+        })   
+
+        setLoadingText("Locating elves on chain")
+        const elves = await lookupMultipleElves({array: array, chain: transferTo})        
+        
+
+        setNftData(elves)
+        setTransfersData(results)
+        setLoading(false)
+
+    }
+
+    
+    useEffect(() => {
+        getElvesfromMoralis(address)
+    }, [address, transferTo, notStatus, limit])
+
+        
+
 
 
     const checkOutElf = async () => {
         setLoading(true)
-
+        setLoadingText("Sending tx")
         let tokenIdsArry = []
         let sentinelArry = []
         let signatureArry = []
@@ -74,7 +124,7 @@ const SentinelTransfers = ({address, transferTo}) => {
 
         let updateElfStatusArray = []
 
-        data.map((item) => {
+        transfersData.map((item) => {
             
             if (clicked.includes((item.id))) {
 
@@ -102,6 +152,14 @@ const SentinelTransfers = ({address, transferTo}) => {
               setStatus("1. Sending gasless tx to confirm elf transfers. Don't close window or refresh.")
               const response = await Moralis.Cloud.run("confirmPendingPolygon", params);
               console.log(response)
+              const tx = JSON.parse(response.tx);
+              const txHash = tx.tx.hash
+
+              const status = <>Check out your transaction on <a target="_blank" href={`https://polygonscan.com/tx/${txHash}`}>Polyscan</a> </>
+
+                setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
+
+              
             }catch(error){
                 console.log(error)
             }
@@ -122,11 +180,11 @@ const SentinelTransfers = ({address, transferTo}) => {
                         })
 
                     
-
+                        setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
                     }
         }
  
-        setAlert({show: true, value: {title: "Tx Sent", content: (status)}})
+        
       }
     
      
@@ -164,7 +222,7 @@ const SentinelTransfers = ({address, transferTo}) => {
                             Confirm Transfers to {transferTo}
                         </button>   
 
-                        <button className="btn-whale" onClick={() => fetch}>Speed up transfer</button>
+                        <button className="btn-whale" onClick={resetVariables}>Speed up transfer</button>
 
                             
                             </div>    
@@ -180,7 +238,7 @@ const SentinelTransfers = ({address, transferTo}) => {
       <thead style={{textAlign: "left"}}>
         <tr>
         <th>Id</th>
-        <th>Transfer Initiated On</th>
+        <th>Transfer Created On</th>
         <th>
             <div className="flex">
                 <span>Sentinel State</span>
@@ -190,26 +248,35 @@ const SentinelTransfers = ({address, transferTo}) => {
         <th>Token Id</th>
         <th>Status</th>
         <th>Transfer To</th>
+        <th>Nft Status</th>
        
         </tr>
       </thead>
       <tbody>
      
 
-            {!isLoading && data.map((line, index) => {
+            {!loading && transfersData.map((line, index) => {
 
                 const date = new Date(line.attributes.timestampCreated * 1000)
                 const dateString = date.toString()
+                //date string to short date
+                const shortDate = dateString.substring(0, dateString.indexOf('GMT'))
 
                 let rowSelected = clicked.includes((line.id)) ? "rowSelected" : ""
 
+                // find the elf in the nftData array
+                let elf = nftData.find((item) => item.id === line.attributes.tokenId)
+                let excludeAction = transferTo === "polygon" ? 0 : 8
+                let nftStatus = elf.action === excludeAction ? "on eth" : "in polygon"
+
+           
                 
                 return( <tr key={index} className={`${rowSelected} row`} onClick={()=> handleClick((line))}  > 
                    <td>
                      {line.id}
                     </td>
                     <td>
-                        {dateString}
+                        {shortDate}
                     </td>
                     <td>
                      {line.attributes.sentinel && String(line.attributes.sentinel).substring(0, 10) +
@@ -219,6 +286,8 @@ const SentinelTransfers = ({address, transferTo}) => {
                     <td>{line.attributes.tokenId}</td>                   
                     <td>{line.attributes.status}</td>
                     <td>{line.attributes.transferTo}</td>
+                    <td>{nftStatus}</td>
+
                 </tr>)
             })}
        
@@ -242,7 +311,7 @@ const SentinelTransfers = ({address, transferTo}) => {
         </>
         
      
-    ) : <Loader text={"Sending tx"} />
+    ) : <Loader text={loadingText} />
 }
 
 export default SentinelTransfers
