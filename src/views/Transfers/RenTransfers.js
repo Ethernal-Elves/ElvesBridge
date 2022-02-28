@@ -157,8 +157,8 @@ const RenTransfers = ({address, transferTo}) => {
         
         <>
         <div className="flex justify-center p-2">
-<h3>REN Transfer Log</h3>        
-</div>
+            <h3>REN Transfer Log</h3>        
+            </div>
 <div className="flex justify-center p-2">
                  
 
