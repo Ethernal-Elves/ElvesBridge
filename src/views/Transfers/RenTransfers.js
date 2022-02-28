@@ -55,8 +55,6 @@ const RenTransfers = ({address, transferTo}) => {
       query =>
         query
           .equalTo("from", address)
-          .equalTo("transferTo", transferTo)
-          .notEqualTo("status", "completed")
           .limit(10),
       [address, transferTo],
      
@@ -158,15 +156,11 @@ const RenTransfers = ({address, transferTo}) => {
     return (
         
         <>
-
+        <div className="flex justify-center p-2">
+<h3>REN Transfer Log</h3>        
+</div>
 <div className="flex justify-center p-2">
-                            <button
-                            /*disabled={!isButtonEnabled.unstake}*/
-                            className="btn-whale"
-                            onClick={checkOutRen}
-                        >
-                            Confirm Transfers to {transferTo}
-                        </button>   
+                 
 
                         <button className="btn-whale" onClick={() => fetch}>Speed up transfer</button>
 
