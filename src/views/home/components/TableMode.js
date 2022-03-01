@@ -362,8 +362,7 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
     return !loading ? (
         
         <>
-         <div className="d-flex">      
-                    <div className="column">             
+           
 
                             <div className="flex justify-center p-2">
                           <button className="btn-whale"  onClick={()=> setTransfersModal(!transfersModal)}> Transfers </button>
@@ -520,10 +519,7 @@ const TableMode = ({nftData, owner, clicked, toggle, chain, toggleChain, setVisu
             </div>
           </div>
       </div>
-                
-</div>
 
-</div>
 {renderMintModal()}
 {renderTransfersModal()}
 {alert.show && showAlert(alert.value)}
