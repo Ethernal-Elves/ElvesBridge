@@ -7,7 +7,7 @@ import {checkIn, checkOut, checkOutRen, usedRenSignatures,
 
 
 
-const RenTransfers = ({address, transferTo}) => {
+const RenTransfers = ({address, transferTo, limit}) => {
     const [loading, setLoading] = useState(true)
     const { Moralis } = useMoralis();
     const [status, setStatus] = useState("")
@@ -55,7 +55,8 @@ const RenTransfers = ({address, transferTo}) => {
       query =>
         query
           .equalTo("from", address)
-          .limit(10),
+          .limit(limit)
+          .descending("timestamp"),
       [address, transferTo],
      
     );

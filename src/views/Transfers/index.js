@@ -75,7 +75,8 @@ const Transfers = () => {
                    
             {wallet && <>
                <SentinelTransfers notStatus={"completed"} address={wallet} transferTo={transferChain} limit={10} />
-                <RenTransfers notStatus={"completed"} address={wallet} transferTo={transferChain} limit={10} />
+                <RenTransfers notStatus={"completed"} address={wallet} transferTo={transferChain} limit={25} />
+             
                </>}
             <br/>
             <br/>

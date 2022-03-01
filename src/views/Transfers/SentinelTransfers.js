@@ -84,6 +84,7 @@ const SentinelTransfers = ({address, transferTo, notStatus, limit}) => {
             .equalTo("transferTo", transferTo)
             .notEqualTo("status", notStatus)
             .limit(limit)
+            .descending("timestampCreated")
 
         results = await query.find()
 
